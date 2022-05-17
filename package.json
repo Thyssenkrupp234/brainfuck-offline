@@ -4,7 +4,8 @@
   "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "tsc && electron ."
+    "start": "tsc && electron .",
+    "build": "tsc"
   },
   "devDependencies": {
     "electron": "^18.2.3",
