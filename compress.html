@@ -1,0 +1,115 @@
+<!doctype html>
+<title>Brainfuck code compressor</title>
+<link rel="stylesheet" href="/base.css">
+<style>
+textarea {
+	width: 377px;
+	height: 233px;
+	display: block;
+}
+code {
+	background-color: #eee;
+}
+</style>
+
+<a href="/brainfuck/">Brainfuck Interpreter</a>
+
+<h3>Compress a Brainfuck program by pasting it into the textarea below</h3>
+
+Removes:
+<ul>
+	<li> Non <code>+-&lt;&gt;[].,</code> characters
+	<li> Leading <code>[ ... ]</code> comments
+	<li> Comments in the form <code>[-][ ... ]</code> 
+	<li> Adjacent <code>+-</code> and <code>&lt;&gt;</code>
+</ul>
+
+<strong>Your code:</strong>
+<textarea id="in">[ Super cool example program. ]
+
+
+--[----->+<]>---.           generate "c"
+++++++++++++.+.+++++++++.     
++[-->+<]>+++.
+++[-->+++<]>.
+++++++++++++.
++.
++++++++++.
+-[-->+++++<]>++.
+[--->++<]>-.
+-----------.                program's over :(
+</textarea> 
+<br>
+
+<strong>Compressed version of your code:</strong>
+<textarea readonly id="out"></textarea>
+
+<br>
+<pre id="info"></pre>
+
+<script>
+var inp = document.getElementById("in"),
+	out = document.getElementById("out"),
+	info = document.getElementById("info");
+
+function combine_char(pos, neg, code)
+{
+	var sum = 0;
+
+	for(var i = 0; i < code.length; i++)
+	{
+		if(code[i] === pos)
+		{
+			sum++;
+		}
+		else if(code[i] === neg)
+		{
+			sum--;
+		}
+		else
+		{
+			throw "Invalid match: " + code[i];
+		}
+	}
+
+	if(sum >= 0)
+	{
+		return Array(sum + 1).join(pos);
+	}
+	else
+	{
+		return Array(-sum + 1).join(neg);
+	}
+}
+
+inp.onkeyup = function()
+{
+	var code = inp.value,
+		compressed;
+		
+	// remove any non [],.<>+-
+	compressed = code.replace(/[^\[\]\.,\+\-<>]/g, "");
+
+	// remove leading [ comment ]
+	compressed = compressed.replace(/^\[[^\[\]]*\]/g, "");
+
+	// remove [-][...]
+	compressed = compressed.replace(/(\[[\-\+]])\[[^\[\]]*\]/g, "$1");
+
+	// remove useless +- and <> combinations
+	compressed = compressed.replace(/[\+\-]*(?:\+-|-\+)[\+\-]*/g, 
+										combine_char.bind(this, "+", "-"));
+	compressed = compressed.replace(/[<>]*(?:<>|><)[<>]*/g, 
+										combine_char.bind(this, "<", ">"));
+
+	out.value = compressed;
+
+	info.textContent =
+		"original size = " + code.length + " bytes\n" + 
+		"compressed size = " + compressed.length + " bytes\n" + 
+		"ratio = " + (compressed.length / (code.length || 1)).toFixed(2);
+};
+
+window.onload = inp.onkeyup;
+</script>
+
