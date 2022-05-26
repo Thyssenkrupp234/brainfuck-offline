@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "tsc && electron .",
-    "build": "tsc"
+    "build": "tsc && electron-builder build"
   },
   "devDependencies": {
     "electron": "^18.2.3",
